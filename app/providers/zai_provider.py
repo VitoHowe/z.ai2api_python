@@ -46,6 +46,7 @@ class ZAIProvider(BaseProvider):
             settings.THINKING_MODEL: "0727-360B-API",  # GLM-4.5-Thinking
             settings.SEARCH_MODEL: "0727-360B-API",  # GLM-4.5-Search
             settings.AIR_MODEL: "0727-106B-API",  # GLM-4.5-Air
+            settings.GLM_4_5V_MODEL: "glm-4.5v",  # glm-4.5v
         }
     
     def get_supported_models(self) -> List[str]:
@@ -54,7 +55,8 @@ class ZAIProvider(BaseProvider):
             settings.PRIMARY_MODEL,
             settings.THINKING_MODEL,
             settings.SEARCH_MODEL,
-            settings.AIR_MODEL
+            settings.AIR_MODEL,
+            settings.GLM_4_5V_MODEL
         ]
     
     async def get_token(self) -> str:
@@ -134,6 +136,7 @@ class ZAIProvider(BaseProvider):
         is_thinking = requested_model == settings.THINKING_MODEL
         is_search = requested_model == settings.SEARCH_MODEL
         is_air = requested_model == settings.AIR_MODEL
+        is_glm_4_5v = requested_model == settings.GLM_4_5V_MODEL
         
         # 获取上游模型ID
         upstream_model_id = self.model_mapping.get(requested_model, "0727-360B-API")
@@ -143,6 +146,9 @@ class ZAIProvider(BaseProvider):
         if is_search:
             mcp_servers.append("deep-web-search")
             self.logger.info("🔍 检测到搜索模型，添加 deep-web-search MCP 服务器")
+        elif is_glm_4_5v:
+            # 视觉模型可能需要特殊的 MCP 服务器
+            self.logger.info("👁️ 检测到视觉模型 glm-4.5v")
         
         # 构建上游请求体
         chat_id = generate_uuid()
@@ -153,7 +159,7 @@ class ZAIProvider(BaseProvider):
             "messages": messages,
             "params": {},
             "features": {
-                "image_generation": False,
+                "image_generation": is_glm_4_5v,  # 视觉模型启用图像生成
                 "web_search": is_search,
                 "auto_web_search": is_search,
                 "preview_mode": False,

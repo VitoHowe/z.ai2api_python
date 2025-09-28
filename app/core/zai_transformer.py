@@ -152,6 +152,7 @@ class ZAITransformer:
             settings.THINKING_MODEL: "0727-360B-API",  # GLM-4.5-Thinking
             settings.SEARCH_MODEL: "0727-360B-API",  # GLM-4.5-Search
             settings.AIR_MODEL: "0727-106B-API",  # GLM-4.5-Air
+            settings.GLM_4_5V_MODEL: "glm-4.5v",  # glm-4.5v
         }
 
     async def get_token(self) -> str:
@@ -250,6 +251,7 @@ class ZAITransformer:
         is_thinking = requested_model == settings.THINKING_MODEL or request.get("reasoning", False)
         is_search = requested_model == settings.SEARCH_MODEL
         is_air = requested_model == settings.AIR_MODEL
+        is_glm_4_5v = requested_model == settings.GLM_4_5V_MODEL
 
         # 获取上游模型ID（使用模型映射）
         upstream_model_id = self.model_mapping.get(requested_model, "0727-360B-API")
@@ -306,8 +308,11 @@ class ZAITransformer:
         if is_search:
             mcp_servers.append("deep-web-search")
             logger.info(f"🔍 检测到搜索模型，添加 deep-web-search MCP 服务器")
+        elif is_glm_4_5v:
+            # 视觉模型可能需要特殊的 MCP 服务器
+            logger.info(f"👁️ 检测到视觉模型 glm-4.5v")
         else:
-            logger.debug(f"  非搜索模型，不添加 MCP 服务器")
+            logger.debug(f"  标准模型，不添加特殊 MCP 服务器")
 
         logger.debug(f"  MCP服务器列表: {mcp_servers}")
 
@@ -320,7 +325,7 @@ class ZAITransformer:
             "messages": messages,
             "params": {},
             "features": {
-                "image_generation": False,
+                "image_generation": is_glm_4_5v,  # 视觉模型启用图像生成
                 "web_search": is_search,
                 "auto_web_search": is_search,
                 "preview_mode": False,

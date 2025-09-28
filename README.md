@@ -166,6 +166,7 @@ docker run -d \
 | `GLM-4.5-Thinking` | 0727-360B-API | 思考模型    | 显示推理过程，透明度高 |
 | `GLM-4.5-Search`   | 0727-360B-API | 搜索模型    | 实时网络搜索，信息更新 |
 | `GLM-4.5-Air`      | 0727-106B-API | 轻量模型    | 快速响应，高效推理     |
+| `glm-4.5v`         | glm-4.5v      | 视觉模型    | 支持多模态，图像理解   |
 
 #### K2Think 提供商
 | 模型                    | 描述           | 特性                     |
@@ -308,7 +309,7 @@ A: 创建 [zai.js](https://gist.githubusercontent.com/musistudio/b35402d6f9c95c6
       "name": "GLM",
       "api_base_url": "http://127.0.0.1:8080/v1/chat/completions",
       "api_key": "sk-your-api-key",
-      "models": ["GLM-4.5", "GLM-4.5-Air"],
+      "models": ["GLM-4.5", "GLM-4.5-Air", "glm-4.5v"],
       "transformers": {
         "use": ["zai"]
       }

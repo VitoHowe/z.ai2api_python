@@ -141,6 +141,7 @@ class Settings(BaseSettings):
     THINKING_MODEL: str = os.getenv("THINKING_MODEL", "GLM-4.5-Thinking")
     SEARCH_MODEL: str = os.getenv("SEARCH_MODEL", "GLM-4.5-Search")
     AIR_MODEL: str = os.getenv("AIR_MODEL", "GLM-4.5-Air")
+    GLM_4_5V_MODEL: str = os.getenv("GLM_4_5V_MODEL", "glm-4.5v")
 
 
 
@@ -154,6 +155,7 @@ class Settings(BaseSettings):
             "GLM-4.5-Thinking": "zai",
             "GLM-4.5-Search": "zai",
             "GLM-4.5-Air": "zai",
+            "glm-4.5v": "zai",
             # K2Think models
             "MBZUAI-IFM/K2-Think": "k2think",
             # LongCat models
