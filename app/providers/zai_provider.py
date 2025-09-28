@@ -144,6 +144,16 @@ class ZAIProvider(BaseProvider):
                                 "url": part_dict["image_url"]["url"]
                             }
                         })
+                    # 处理文件URL内容（支持txt、pdf等文件格式）
+                    elif (part_dict.get("type") == "file_url" 
+                          and part_dict.get("file_url", {}).get("url")):
+                        self.logger.debug(f"📄 检测到文件URL内容")
+                        content_parts.append({
+                            "type": "file_url",
+                            "file_url": {
+                                "url": part_dict["file_url"]["url"]
+                            }
+                        })
                     # 兼容旧的属性访问方式
                     elif hasattr(part, 'type') and hasattr(part, 'text'):
                         content_parts.append({
@@ -175,8 +185,8 @@ class ZAIProvider(BaseProvider):
             mcp_servers.append("deep-web-search")
             self.logger.info("🔍 检测到搜索模型，添加 deep-web-search MCP 服务器")
         elif is_glm_4_5v:
-            # 视觉模型可能需要特殊的 MCP 服务器
-            self.logger.info("👁️ 检测到视觉模型 glm-4.5v")
+            # 多模态模型支持图片和文件
+            self.logger.info("🤖 检测到多模态模型 glm-4.5v（支持图片和文件）")
         
         # 构建上游请求体
         chat_id = generate_uuid()
