@@ -121,11 +121,39 @@ class ZAIProvider(BaseProvider):
                 # 处理多模态内容
                 content_parts = []
                 for part in msg.content:
-                    if hasattr(part, 'type') and hasattr(part, 'text'):
+                    # 检查part是否是字典（从HTTP请求解析的）
+                    if isinstance(part, dict):
+                        part_dict = part
+                    else:
+                        # 如果是对象，转换为字典
+                        part_dict = part.model_dump() if hasattr(part, 'model_dump') else part.__dict__
+                    
+                    # 处理文本内容
+                    if part_dict.get("type") == "text" and "text" in part_dict:
+                        content_parts.append({
+                            "type": "text",
+                            "text": part_dict["text"]
+                        })
+                    # 处理图片URL内容（支持base64和http URL）
+                    elif (part_dict.get("type") == "image_url" 
+                          and part_dict.get("image_url", {}).get("url")):
+                        self.logger.debug(f"📷 检测到图片URL内容")
+                        content_parts.append({
+                            "type": "image_url",
+                            "image_url": {
+                                "url": part_dict["image_url"]["url"]
+                            }
+                        })
+                    # 兼容旧的属性访问方式
+                    elif hasattr(part, 'type') and hasattr(part, 'text'):
                         content_parts.append({
                             "type": part.type,
                             "text": part.text
                         })
+                    else:
+                        # 保持原有格式，防止丢失数据
+                        content_parts.append(part_dict)
+                
                 messages.append({
                     "role": msg.role,
                     "content": content_parts
